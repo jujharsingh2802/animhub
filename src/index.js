@@ -1,56 +1,16 @@
-import dotenv from "dotenv";
-import express from "express";
+import dotenv from "dotenv"
 import connectDB from "./db/index.js";
-
+import {app} from './app.js'
 dotenv.config({
-    path: "./env",
-});
-
-const app = express();
+    path: './.env'
+})
 
 connectDB()
-.then(()=>{
-    app.on("error",(error)=>{
-        console.error("Error: ", error);
-        throw error
-    })
-    app.listen(process.env.PORT || 8000,()=>{
-        console.log(`server is running at PORT: ${process.env.PORT}`)
+.then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+        console.log(`⚙️  Server is running at port : ${process.env.PORT}`);
     })
 })
-.catch((error)=>{
-    console.error("Mongo DB connection FAILED !!!", error);
-    throw error
-
+.catch((err) => {
+    console.log("MONGO db connection failed !!! ", err);
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// using iify to avoid global scope
-
-/*;(async()=>{
-    try {
-        await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
-        app.on("error",(error)=>{
-            console.error("Error: ", error);
-            throw error
-        })
-        app.listen(process.env.PORT,()=>{
-            console.log(`App's Server is running on port ${process.env.PORT}`);
-        })
-    } catch (error) {
-        console.error("Error: ", error);
-        throw error
-    }
-})()*/
