@@ -10,8 +10,6 @@ const userSchema = new Schema({
         trim: true,
         lowercase: true,
         index:true, //for searching fields
-        minlength: 3,
-        maxlength: 30
     },
     email: {
         type: String,
