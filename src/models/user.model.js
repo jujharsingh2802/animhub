@@ -33,7 +33,7 @@ const userSchema = new Schema({
     },
     watchHistory: [
         {
-            Type: Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "Video" // reference to video model, so we can get video data from video model.
         }
     ],
