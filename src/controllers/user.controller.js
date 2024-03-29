@@ -59,7 +59,7 @@ const registerUser = asyncHandler(async (req, res) => {
     username: username.toLowerCase(),
     password,
     avatar: avatar.url,
-    coverImage: coverImage.url || "",
+    coverImage: coverImage?.url || "",
   });
   const createdUser = await User.findById(user._id)
   .select("-password -refreshToken")
@@ -67,6 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if(!createdUser){
     throw new ApiError(500,"Something went wrong while registering the user")
   }
+  console.log("\nSUCCESSFULLY REGISTERED: ",user);
   return res.status(201).json(
     new ApiResponse(200, createdUser ,"User registered successfully" )
   )
