@@ -104,10 +104,9 @@ const loginUser = asyncHandler(async (req,res) =>{
   //  return response with access and refresh tokens
   const {email, username, password} = req.body
 
-  if(!(email || username)){
-    throw new ApiError(400, "Email or username is required")
-  }
-
+  if (!username && !email) {
+    throw new ApiError(400, "username or email is required")
+}
   const user = await User.findOne({
     $or: [{email}, {username}]
   });
@@ -122,9 +121,8 @@ const loginUser = asyncHandler(async (req,res) =>{
   }
   const {accessToken, refreshToken} = await generateAccessandRefreshToken(user._id)
 
-  user.refreshToken = refreshToken;
-  const loggedInUser = user.select("-password -refreshToken")
-  // const loggeInUser = await User.findById(user._id).select("-password -refreshToken")
+
+  const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
   const options = {
     httpOnly: true,
