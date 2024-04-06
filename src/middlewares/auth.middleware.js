@@ -22,5 +22,4 @@ export const verifyJWT = asyncHandler(async(req, _,next)=>{
     }
 
 })
-// vlsi design 
-// rtl circuits etc.
+
