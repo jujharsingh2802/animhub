@@ -1,6 +1,7 @@
 import mongoose, {Schema} from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { ApiError } from "../utils/ApiError.js";
 
 const userSchema = new Schema({
     username: {
@@ -39,7 +40,7 @@ const userSchema = new Schema({
     ],
     password: {
         type: String,
-        required: [true, 'Password is required'],
+        required: true,
     },
     refreshToken:{
         type: String
@@ -52,9 +53,14 @@ userSchema.pre("save",async function (next) {
     next()
 })
 
-userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password,this.password);
+userSchema.methods.isPasswordCorrect = async function(password) {
+    try {
+        return await bcrypt.compare(password, this.password);
+    } catch (error) {
+        throw new ApiError(500, "Internal Server Error!!", error);
+    }
 }
+
 userSchema.methods.generateAccessToken = function(){
     return jwt.sign(
         {
