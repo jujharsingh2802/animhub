@@ -1,6 +1,14 @@
 import mongoose, {Schema} from 'mongoose'
 
 const likeSchema = new Schema({
+    number:{
+        type: Number,
+        default: 0
+    },
+    dislike:{
+        type: Boolean,
+        default: false
+    },
     comment:{
         type: Schema.Types.ObjectId,
         ref: 'Comment'

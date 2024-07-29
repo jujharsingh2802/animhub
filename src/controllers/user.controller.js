@@ -244,6 +244,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
       new ApiResponse(200, req.user, "The current User has been fetched! ")
     );
 });
+
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { fullName, username } = req.body;
   if (!fullName && !username) {
