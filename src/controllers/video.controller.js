@@ -17,28 +17,42 @@ const publishAVideo = asyncHandler(async (req, res) => {
   const videoFileLocalPath = req.files?.videoFile[0]?.path;
   const thumbnailLocalPath = req.files?.thumbnail[0]?.path;
 
-  if (!videoFileLocalPath || !thumbnailLocalPath) {
-    throw new ApiError(400, "Video file or Thumbnail is missing");
+  if (!videoFileLocalPath) {
+    throw new ApiError(400, "Video file is missing");
   }
-
   if (!title || !description) {
     throw new ApiError(400, "Title and description are required");
   }
 
   const videoFile = await uploadOnCloudinary(videoFileLocalPath);
-  const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
 
-  if (!videoFile || !thumbnail) {
-    throw new ApiError(400, "Error while uploading video or thumbnail");
+  if (!videoFile) {
+    throw new ApiError(400, "Error while uploading video");
   }
 
+  let thumbnailFile;
+  if(!thumbnailLocalPath){
+    thumbnailFile = cloudinary.url(videoFile.public_id, {
+      resource_type: 'video',
+      format: 'jpg',
+      start_offset: '5', 
+    });
+  }
+  else{
+    thumbnailFile = await uploadOnCloudinary(thumbnailLocalPath);
+  }
+
+  if(!thumbnailFile){
+    throw new ApiError(400, "Error while generating or uploading the thumbnail")
+  }
   const video = await Video.create({
     title,
     description,
     videoFile: videoFile.url,
-    thumbnail: thumbnail.url,
+    thumbnail: thumbnailFile,
     duration: videoFile?.duration,
     owner: req?.user?._id || "",
+    isPublished: false
   });
 
   if (!video) {
