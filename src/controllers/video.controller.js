@@ -49,7 +49,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     title,
     description,
     videoFile: videoFile.url,
-    thumbnail: thumbnailFile,
+    thumbnail: thumbnailFile?.url,
     duration: videoFile?.duration,
     owner: req?.user?._id || "",
     isPublished: false
@@ -61,7 +61,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
   console.log("POSTED VIDEO SUCCESSFULLY!! ", video);
 
-  res
+  return res
     .status(201)
     .json(new ApiResponse(200, video, "Video Posted SUCCESSFULLY!!"));
 });
@@ -133,7 +133,34 @@ const updateVideo = asyncHandler(async (req, res) => {
 
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: delete video
+  if(!videoId?.trim()){
+    throw new ApiError(400, "Video id is required")
+  }
+  const video = await Video.findById(videoId);
+  if(!video){
+    throw new ApiError(404, "Video not found");
+  }
+  if(video.owner.toString() !== req.user?._id.toString()){
+    throw new ApiError(403, "You are not authorized to delete this video");
+  }
+  
+
+  const videoPublicId = video.videoFile.split("/").pop().split(".")[0]; // Extract public ID from video URL : public id is usually stored as last element in cloudinary url with extension so this operation gets that
+  const thumbnailPublicId = video.thumbnail.split("/").pop().split(".")[0];
+  
+  await deleteFromCloudinary(videoPublicId, { resource_type: "video" });
+  await deleteFromCloudinary(thumbnailPublicId, { resource_type: "image" });
+  
+  const videodelete = await Video.findByIdAndDelete(videoId);
+  if(!videodelete){
+    throw new ApiError(500, "Something went wrong while deleting the video! Please try again later!");
+  }
+
+  //TODO: ADD Functionality to delete from Likes and comment models too (after implementing them)
+
+  return res
+          .status(200)
+          .json(new ApiResponse(200, {}, "Video Deleted SUCCESSFULLY!!"));
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
