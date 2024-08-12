@@ -8,7 +8,6 @@ import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  //TODO: get all videos based on query, sort, pagination
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
@@ -128,13 +127,66 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: update video details like title, description, thumbnail
+  
+  if (!videoId?.trim()) {
+    throw new ApiError(400, "Video ID is required");
+  }
+
+  const { title, description } = req.body;
+  
+  if (!title && !description) {
+    throw new ApiError(404, "Title or Description is required");
+  }
+
+  const video = await Video.findById(videoId);
+
+  if (!video) {
+    throw new ApiError(404, "Video not found!");
+  }
+
+  if(video.owner.toString() !== req.user?._id.toString()){
+    throw new ApiError(403, "User is not authorized to perform this action");
+  }
+
+  const thumbnailPublicId = video.thumbnail.split("/").pop().split(".")[0];
+  const newThumbnailPath = req.files?.thumbnail?.[0]?.path;
+  let newThumbnailFile;
+
+  if (newThumbnailPath) {
+    await deleteFromCloudinary(thumbnailPublicId);
+    newThumbnailFile = await uploadOnCloudinary(newThumbnailPath);
+    if (!newThumbnailFile) {
+      throw new ApiError(400, "Error while uploading the thumbnail");
+    }
+  }
+
+
+  const updatedVideo = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $set: {
+        title: title || video.title,
+        description: description || video.description,
+        thumbnail: newThumbnailFile?.url || video.thumbnail
+      }
+    },
+    { new: true }
+  );
+
+  if (!updatedVideo) {
+    throw new ApiError(500, "Error updating the video details");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedVideo, "The changes have been made successfully"));
 });
+
 
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   if(!videoId?.trim()){
-    throw new ApiError(400, "Video id is required")
+    throw new ApiError(400, "Video id is required");
   }
   const video = await Video.findById(videoId);
   if(!video){
@@ -159,13 +211,49 @@ const deleteVideo = asyncHandler(async (req, res) => {
   //TODO: ADD Functionality to delete from Likes and comment models too (after implementing them)
 
   return res
-          .status(200)
-          .json(new ApiResponse(200, {}, "Video Deleted SUCCESSFULLY!!"));
+    .status(200)
+    .json(new ApiResponse(200, {}, "Video Deleted SUCCESSFULLY!!"));
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+
+  if (!videoId?.trim()) {
+    throw new ApiError(400, "Video Id is required");
+  }
+
+  const video = await Video.findById(videoId);
+
+  if (!video) {
+    throw new ApiError(404, "Video not found");
+  }
+
+  if (video?.owner.toString() !== req?.user?._id.toString()) {
+    throw new ApiError(403, "User not authorized to perform this action");
+  }
+
+  const togglePublish = await Video.findByIdAndUpdate(
+    videoId,
+    {
+      $set: {
+        isPublished: !video.isPublished
+      }
+    },
+    {
+      new: true
+    }
+  );
+
+  if (!togglePublish) {
+    throw new ApiError(500, "Something went wrong while changing the status");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, togglePublish, "Publish Status Toggled Successfully!!"));
 });
+
+
 
 export {
   getAllVideos,
