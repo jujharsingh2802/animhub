@@ -7,7 +7,6 @@ const router = Router();
 
 router.use(verifyJWT);
 
-router.route("/").get(getAllVideos)
 router.route("/").post(
         upload.fields([
             {
@@ -22,6 +21,8 @@ router.route("/").post(
         ]),
         publishAVideo
     )
+    
+router.route("/").get(getAllVideos)
 router.route("/v/:videoId").delete(verifyJWT,deleteVideo)
 router.route("/v/:videoId").get(verifyJWT, getVideoById)
 router.route("/v/:videoId").patch(verifyJWT,upload.fields([{name: "thumbnail",maxCount:1}]),updateVideo);
