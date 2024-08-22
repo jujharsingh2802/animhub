@@ -5,6 +5,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import { Like } from "../models/like.model.js";
+import { Comment } from "../models/comment.model.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
@@ -282,7 +284,12 @@ const deleteVideo = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while deleting the video! Please try again later!");
   }
 
-  //TODO: ADD Functionality to delete from Likes and comment models too (after implementing them)
+  await Like.deleteMany({
+    video: videoId
+  });
+  await Comment.deleteMany({
+    video: videoId
+  })
 
   return res
     .status(200)
