@@ -1,11 +1,7 @@
 import mongoose, {isValidObjectId} from "mongoose";
-import { Video } from "../models/video.model";
-import { User } from "../models/user.model";
-import { Like } from "../models/like.model";
-import { Comment } from "../models/comment.model";
-import { Twitter as Tweet } from "../models/twitter.model";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiError } from "../utils/ApiError";
+import { Like } from "../models/like.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 const toggleVideoLike = asyncHandler(async( req, res)=>{
@@ -13,10 +9,10 @@ const toggleVideoLike = asyncHandler(async( req, res)=>{
     if(!isValidObjectId(videoId)){
         new ApiError(400, "Invalid VideoId");
     }
-    
+
     const likeAlready = await Like.findOne({
             video: videoId,
-            likedBy: req?.user?._id,
+            likedBy: req.user?._id,
     });
 
     if(likeAlready){
@@ -106,10 +102,12 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                 as: "likedVideo",
                 pipeline: [
                     {
-                        $lookup: "users",
-                        localField: "owner",
-                        foreignField: "_id",
-                        as: "ownerDetails"
+                        $lookup: {
+                            from:"users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "ownerDetails"
+                        } 
                     },
                     {
                         $unwind: "$ownerDetails"
