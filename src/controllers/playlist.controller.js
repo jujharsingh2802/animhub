@@ -35,8 +35,8 @@ const updatePlaylist = asyncHandler(async(req,res)=>{
         throw new ApiError(400, "invalid playlist id");
     }
 
-    if(!name){
-        throw new ApiError(400, "Name is required when updating it");
+    if(!name && !description){
+        throw new ApiError(400, "Name or Description is required when updating the playlist!");
     }
 
     const playlist = await Playlist.findById(playlistId);
@@ -90,6 +90,11 @@ const deletePlaylist = asyncHandler(async(req,res)=>{
     return res
         .status(200)
         .json(new ApiResponse(200, {} ,"Playlist was deleted Successfully!!!"));
+
+})
+
+const addVideoToPlaylist = asyncHandler(async(req,res)=>{
+    const {playlistId, videoId} = req.params;
 
 })
 
