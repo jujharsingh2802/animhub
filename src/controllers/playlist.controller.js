@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Playlist } from "../models/playlist.model.js";
+import { Video } from "../models/video.model.js";
 
 const createPlaylist = asyncHandler(async(req,res)=>{
     let {name, description } = req?.body;
@@ -96,10 +97,49 @@ const deletePlaylist = asyncHandler(async(req,res)=>{
 const addVideoToPlaylist = asyncHandler(async(req,res)=>{
     const {playlistId, videoId} = req.params;
 
+    if(!isValidObjectId(playlistId) || !isValidObjectId(videoId)){
+        throw new ApiError(400, "Invalid videoId or PlaylistId");
+    }
+
+    const playlist = await Playlist.findById(playlistId);
+    const video = await Video.findById(playlistId);
+
+    if(!playlist){
+        throw new ApiError(404, "Playlist Does not exist");
+    }
+    if(!video){
+        throw new ApiError(404, "Video cannot be found");
+    }
+
+    if(playlist?.owner.toString()!==req?.user?._id.toString()){
+        throw new ApiError(400, "Only Owner can add video in the Playlist");
+    }
+
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlist?._id,
+        {
+            $addToSet:{
+                videos: videoId,
+            }
+        },
+        {
+            new: true
+        }
+    );
+
+    if(!updatedPlaylist){
+        throw new ApiError(500, "Video Cannot be added, Please try again");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, updatedPlaylist ,"Video added to playlist successfully"));
 })
 
 export {
     createPlaylist,
     updatePlaylist,
-    deletePlaylist
+    deletePlaylist,
+    addVideoToPlaylist,
+    
 }
