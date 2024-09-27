@@ -5,6 +5,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import {v2 as cloudinary} from "cloudinary";
 import { Like } from "../models/like.model.js";
 import { Comment } from "../models/comment.model.js";
 
@@ -90,7 +91,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
 
   const videoFileLocalPath = req.files?.videoFile[0]?.path;
-  const thumbnailLocalPath = req.files?.thumbnail[0]?.path || "";
+  const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path || "";
 
   if (!videoFileLocalPath) {
     throw new ApiError(400, "Video file is missing");
@@ -104,19 +105,20 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!videoFile) {
     throw new ApiError(400, "Error while uploading video");
   }
-
   let thumbnailFile;
   if(!thumbnailLocalPath){
-    thumbnailFile = cloudinary.url(videoFile.public_id, {
+    const thumbnailUrl = cloudinary.url(videoFile.public_id, {
       resource_type: 'video',
       format: 'jpg',
       start_offset: '5', 
     });
+    thumbnailFile = { url: thumbnailUrl };
   }
   else{
     thumbnailFile = await uploadOnCloudinary(thumbnailLocalPath);
   }
-
+  
+  
   if(!thumbnailFile){
     throw new ApiError(400, "Error while generating or uploading the thumbnail")
   }
@@ -124,7 +126,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     title,
     description,
     videoFile: videoFile.url,
-    thumbnail: thumbnailFile?.url,
+    thumbnail: thumbnailFile?.url || "",
     duration: videoFile?.duration,
     owner: req?.user?._id || "",
     isPublished: false
