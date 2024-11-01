@@ -107,10 +107,11 @@ const publishAVideo = asyncHandler(async (req, res) => {
   }
   let thumbnailFile;
   if(!thumbnailLocalPath){
+    let random = Math.floor(Math.random() * 10) + 5;
     const thumbnailUrl = cloudinary.url(videoFile.public_id, {
       resource_type: 'video',
       format: 'jpg',
-      start_offset: '5', 
+      start_offset: random, 
     });
     thumbnailFile = { url: thumbnailUrl };
   }

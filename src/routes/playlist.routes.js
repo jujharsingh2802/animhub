@@ -7,7 +7,7 @@ const router = Router();
 
 router.use(verifyJWT, upload.none());
 
-router.route("/").get(createPlaylist);
+router.route("/").post(createPlaylist);
 
 router.route("/:playlistId").patch(updatePlaylist);
 router.route("/:playlistId").delete(deletePlaylist);
