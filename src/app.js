@@ -24,6 +24,7 @@ import twitterRouter from './routes/twitter.routes.js';
 import playListRouter from './routes/playlist.routes.js';
 import subscriptionRouter from './routes/subscription.routes.js';
 import dashboardRouter from "./routes/dashboard.routes.js"
+import adminRouter from "./routes/admin.routes.js"
 //routes declaration
 app.use("/api/v1/users",userRouter)
 app.use("/api/v1/videos", videoRouter)
@@ -33,5 +34,5 @@ app.use("/api/v1/tweets",twitterRouter)
 app.use("/api/v1/playlist",playListRouter)
 app.use("/api/v1/subscription", subscriptionRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
-
+app.use("/api/v1/adminroute", adminRouter)
 export { app }

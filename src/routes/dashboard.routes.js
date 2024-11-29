@@ -6,7 +6,7 @@ import { getChannelStats, getChannelVideos } from "../controllers/dashboard.cont
 
 const router = Router();
 
-router.use(verifyJWT);
+router.use(verifyJWT, upload.none());
 
 router.route("/stats").get(getChannelStats);
 router.route("/videos").get(getChannelVideos);
