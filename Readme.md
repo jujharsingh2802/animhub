@@ -23,7 +23,7 @@ RBAC ensures that users have specific permissions based on their roles. Animhub 
 
 ### Roles:
 1. **Admin**
-   - Full control over all videos: view, delete, and toggle publish status (Cannot update the video contents).
+   - Full control over all videos: view, delete, and toggle publish status (Cannot update the video, comment or tweets contents).
    - Can manage users and monitor activity.
    - No authentication required after admin login for protected routes.
 
@@ -32,7 +32,7 @@ RBAC ensures that users have specific permissions based on their roles. Animhub 
    - Cannot modify videos created by other users.
 
 3. **Viewer**
-   - Limited to viewing videos and interacting with content (e.g., liking, commenting, subscribing).
+   - Limited to viewing videos and interacting with content.
    - No permission to update, or delete videos that are not his.
 
 ### Implementation:
@@ -45,42 +45,79 @@ RBAC ensures that users have specific permissions based on their roles. Animhub 
 /src
 |-- /controllers
 |   |-- admin.controller.js
+
 |   |-- user.controller.js
+
 |   |-- video.controller.js
+
 |   |-- comment.controller.js
+
 |   |-- twitter.controller.js
+
 |   |-- playlist.controller.js
+
 |   |-- subscription.controller.js
+
 |   |-- dashboard.controller.js
+
 |-- /middlewares
+
 |   |-- auth.middleware.js
+
 |   |-- admin.middleware.js
+
 |   |-- multer.middleware.js
+
 |   |-- verifyadmin.middleware.js
+
 |-- /models
+
 |   |-- user.model.js
+
 |   |-- video.model.js
+
 |   |-- like.model.js
+
 |   |-- comment.model.js
+
 |   |-- tweet.model.js
+
 |   |-- playlist.model.js
+
 |   |-- subscription.model.js
+
 |-- /routes
+
 |   |-- admin.routes.js
+
 |   |-- user.routes.js
+
 |   |-- video.routes.js
+
 |   |-- comment.routes.js
+
 |   |-- twitter.routes.js
+
 |   |-- playlist.routes.js
+
 |   |-- subscription.routes.js
+
 |   |-- dashboard.routes.js
+
 |-- /utils
+
 |   |-- ApiError.js
+
 |   |-- ApiResponse.js
+
 |   |-- asyncHandler.js
+
 |   |-- cloudinary.js
+
 |-- app.js
+
 |-- constants.js
+
 |-- index.js
 
 ## Installation

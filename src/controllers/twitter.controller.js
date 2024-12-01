@@ -1,4 +1,4 @@
-import mongoose, { get, isValidObjectId } from "mongoose";
+import mongoose, { isValidObjectId } from "mongoose";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -13,7 +13,7 @@ const createTweet = asyncHandler(async(req,res)=>{
 
     const tweet = await Twitter.create({
         content,
-        owner: req.user?._id
+        owner: req.user?._id 
     })
     if(!tweet){
         throw new ApiError(500, "Tweet Cannot be created");
@@ -69,12 +69,14 @@ const deleteTweet = asyncHandler(async(req,res)=>{
     if(!isValidObjectId(tweetId)){
         throw new ApiError(400, "TweetId not valid");
     }
+    console.log(tweetId)
     const tweet = await Twitter.findById(tweetId);
 
     if(!tweet){
         throw new ApiError(404, "Tweet Not Found");
     }
-    if(req.user?._id.toString()!==tweet?.owner,toString()){
+    console.log(req.user?._id, tweet?.owner)
+    if(req.user?._id?.toString() !== tweet?.owner?.toString() && req.user?.status !== "admin"){
         throw new ApiError(400, "Only Owner can delete their tweets");
     }
 

@@ -153,25 +153,27 @@ const updateComment = asyncHandler( async (req,res)=>{
 
 const deleteComment = asyncHandler(async (req,res)=>{
     const { commentId } = req.params;
-    
+
     const comment = await Comment.findById(commentId);
 
     if(!comment){
         throw new ApiError(404, "Comment Not Found");
     }
-
-    if(req?.user?._id.toString() !== comment?.owner.toString()){
+    console.log(comment?.owner)
+    if(comment?.owner?.toString() !== req?.user?._id?.toString()  && req?.user?.status !== "admin"){
         throw new ApiError(400, "Only comment owner can delete the comment");
     }
     await Comment.findByIdAndDelete(comment?._id);
 
-    await Like.deleteMany({
-        comment: commentId,
-        likedBy: req.user?._id
-    })
+    if(req?.user?._id) {
+            await Like.deleteMany({
+            comment: commentId,
+            likedBy: req?.user?._id || ""
+        })
+    }
     return res
         .status(200)
-        .json(new ApiError(200, {commentId}, "The comment has been deleted"));
+        .json(new ApiError(200, { commentId }, "The comment has been deleted"));
     
 })
 
