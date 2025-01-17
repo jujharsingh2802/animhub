@@ -5,6 +5,7 @@ import { publishAVideo, getAllVideos, deleteVideo, getVideoById, togglePublishSt
 import { verifyAdmin } from "../middlewares/verifyadmin.middleware.js";
 
 const router = Router();
+router.route("/").get(upload.none(),getAllVideos)
 
 router.use(verifyAdmin);
 router.use((req, res, next) => {
@@ -29,7 +30,6 @@ router.route("/").post(
         publishAVideo
     )
     
-router.route("/").get(getAllVideos)
 router.route("/v/:videoId").delete(deleteVideo)
 router.route("/v/:videoId").get(getVideoById)
 router.route("/v/:videoId").patch(
