@@ -187,7 +187,7 @@ const getVideoById = asyncHandler(async (req, res) => {
                 $cond: {
                   if: {
                     $in: [
-                      req?.user?.id,
+                      req?.user?._id,
                       "$subscribers.subscriber"
                     ],
                   },
